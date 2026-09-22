@@ -37,6 +37,23 @@ public class GameState
     public IEnumerable<PendingUpgrade> ActiveUpgrades =>
         gameUpgrades.Concat(inningUpgrades).Concat(atBatUpgrades);
 
+    private Dictionary<ShowdownCardData, int> shadowClones =
+    new Dictionary<ShowdownCardData, int>();
+
+    public void AddShadowClone(ShowdownCardData batter)
+    {
+        if (!shadowClones.ContainsKey(batter))
+            shadowClones[batter] = 0;
+
+        shadowClones[batter]++;
+    }
+
+    public int GetShadowClones(ShowdownCardData batter)
+    {
+        return shadowClones.TryGetValue(batter, out int count)
+            ? count
+            : 0;
+    }
     // -------------------------------------------------------------------------
     // Upgrade management
     // -------------------------------------------------------------------------

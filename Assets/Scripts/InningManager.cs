@@ -213,6 +213,17 @@ public class InningManager : MonoBehaviour
             int runsBefore = state.RunsThisInning;
 
             state.ApplyResult(outcome.result);
+
+            // Fire reactive artifact effects AFTER the baseball result resolves.
+            var eventEffects = ChartModifier.GetAtBatEventEffects(
+                batter,
+                activeUpgrades);
+
+            foreach (var effect in eventEffects)
+            {
+                effect.OnAtBatResolved(outcome, batter, state);
+            }
+
             state.ConsumeAtBatUpgrades();
 
             int runsScored = state.RunsThisInning - runsBefore;

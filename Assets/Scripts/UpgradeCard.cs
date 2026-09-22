@@ -35,6 +35,13 @@ public interface IResultEffect
     AtBatResult Apply(AtBatResult result);
 }
 
+public interface IAtBatEventEffect
+{
+    void OnAtBatResolved(
+        AtBatOutcome outcome,
+        ShowdownCardData batter,
+        GameState state);
+}
 public interface IStatModifierEffect
 {
     int ModifyOnBase(int rawOnBase);
@@ -134,6 +141,8 @@ public class ResultOverrideEffect : IResultEffect
     public AtBatResult Apply(AtBatResult result) => result == fromResult ? toResult : result;
 }
 
+
+
 [System.Serializable]
 public class CritChanceEffect : IResultEffect
 {
@@ -194,7 +203,7 @@ public class UpgradeCard : ScriptableObject
     [SerializeReference] public List<IRollModifierEffect> rollModifierEffects = new List<IRollModifierEffect>();
     [SerializeReference] public List<IResultEffect> resultEffects = new List<IResultEffect>();
     [SerializeReference] public List<IStatModifierEffect> statModifierEffects = new List<IStatModifierEffect>();
-
+    [SerializeReference] public List<IAtBatEventEffect> atBatEventEffects = new List<IAtBatEventEffect>();
     public string GetEffectDescription()
     {
         var lines = new List<string>();

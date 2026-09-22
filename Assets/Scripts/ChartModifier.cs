@@ -125,6 +125,25 @@ public static class ChartModifier
             chart.Add(new ChartEntry { rollMin = newMin, rollMax = newMax, result = result });
         }
     }
+    public static List<IAtBatEventEffect> GetAtBatEventEffects(
+    ShowdownCardData batter,
+    List<PendingUpgrade> upgrades)
+    {
+        var effects = new List<IAtBatEventEffect>();
+
+        foreach (var upgrade in upgrades)
+        {
+            if (!upgrade.AppliesToBatter(batter))
+                continue;
+
+            if (upgrade.card.atBatEventEffects == null)
+                continue;
+
+            effects.AddRange(upgrade.card.atBatEventEffects);
+        }
+
+        return effects;
+    }
 
     // -------------------------------------------------------------------------
     // Gather effects from other families — same "applies to this batter" filter
