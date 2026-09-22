@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 249d2a90963cb4241b76c5753d9affa0, type: 3}
+  m_Name: Randy Johnson
+  m_EditorClassIdentifier: Assembly-CSharp::ShowdownCardData
+  playerName: Randy Johnson
+  cardType: 0
+  cost: 2
+  control: 6
+  onBase: 0
+  chart:
+  - rollMin: 1
+    rollMax: 2
+    result: 3
+  - rollMin: 3
+    rollMax: 8
+    result: 0
+  - rollMin: 9
+    rollMax: 13
+    result: 1
+  - rollMin: 14
+    rollMax: 16
+    result: 2
+  - rollMin: 17
+    rollMax: 17
+    result: 4
+  - rollMin: 18
+    rollMax: 19
+    result: 5
+  - rollMin: 20
+    rollMax: 20
+    result: 7
+  difficulty: 0
+  runsToBeat: 2

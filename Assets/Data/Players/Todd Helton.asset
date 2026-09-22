@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 249d2a90963cb4241b76c5753d9affa0, type: 3}
+  m_Name: Todd Helton
+  m_EditorClassIdentifier: Assembly-CSharp::ShowdownCardData
+  playerName: Todd Helton
+  cardType: 1
+  cost: 2
+  control: 0
+  onBase: 11
+  portrait: {fileID: -3854594433483865871, guid: f12e9a3c0615c1f4ead703972b9e4365, type: 3}
+  chart:
+  - rollMin: 1
+    rollMax: 2
+    result: 2
+  - rollMin: 3
+    rollMax: 9
+    result: 4
+  - rollMin: 10
+    rollMax: 15
+    result: 5
+  - rollMin: 16
+    rollMax: 18
+    result: 7
+  - rollMin: 19
+    rollMax: 20
+    result: 9
+  difficulty: 0
+  runsToBeat: 0
