@@ -1282,13 +1282,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InningManager
   upgradeCardPool:
-  - {fileID: 11400000, guid: 5aff09ebdfd164844b7bcb397f0f9986, type: 2}
-  - {fileID: 11400000, guid: 384bfc084ecdf2449ac7449dd13861f6, type: 2}
-  - {fileID: 11400000, guid: 133f2a6acd2a45f4a8a301c7ea473362, type: 2}
-  - {fileID: 11400000, guid: c10485b5745cc2446811fb691e0e97e8, type: 2}
+  - {fileID: 11400000, guid: 99c07ba78a2e5a44aa4e12f4d96f7a80, type: 2}
+  - {fileID: 11400000, guid: 370929507eeec5a47aab4e0c5fd50753, type: 2}
+  - {fileID: 11400000, guid: 370929507eeec5a47aab4e0c5fd50753, type: 2}
   - {fileID: 11400000, guid: d39d9cbb428927144b784d99fc4825e4, type: 2}
-  - {fileID: 11400000, guid: 55ff22e8eff0a954e99cd7ef0bb1205c, type: 2}
-  - {fileID: 11400000, guid: 38cd35dc208811248a1cece8cfe4d952, type: 2}
   shopSlots: 3
   totalInnings: 9
   secondsPerAtBat: 1

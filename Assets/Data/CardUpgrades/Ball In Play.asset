@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8de4f8d76d38c749ba15108df3ce664, type: 3}
+  m_Name: Ball In Play
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeCard
+  cardName: Ball In Play
+  flavorText: 
+  cost: 2
+  scope: 0
+  targetType: 0
+  swaps: []
+  chartEffects: []
+  rollModifierEffects: []
+  resultEffects:
+  - rid: 8139312360028635214
+  - rid: 8139312360028635215
+  - rid: 8139312360028635216
+  statModifierEffects:
+  - rid: 8139312360028635210
+  atBatEventEffects: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 8139312360028635210
+      type: {class: OnBaseModifierEffect, ns: , asm: Assembly-CSharp}
+      data:
+        amount: 3
+    - rid: 8139312360028635214
+      type: {class: ResultOverrideEffect, ns: , asm: Assembly-CSharp}
+      data:
+        fromResult: 7
+        toResult: 5
+    - rid: 8139312360028635215
+      type: {class: ResultOverrideEffect, ns: , asm: Assembly-CSharp}
+      data:
+        fromResult: 8
+        toResult: 5
+    - rid: 8139312360028635216
+      type: {class: ResultOverrideEffect, ns: , asm: Assembly-CSharp}
+      data:
+        fromResult: 9
+        toResult: 5

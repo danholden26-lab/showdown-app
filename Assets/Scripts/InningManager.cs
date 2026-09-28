@@ -184,7 +184,38 @@ public class InningManager : MonoBehaviour
     // -------------------------------------------------------------------------
     // Sim phase
     // -------------------------------------------------------------------------
+    private void ResolveAtBatEvent(
+    AtBatEventTrigger effect,
+    AtBatOutcome outcome,
+    ShowdownCardData batter,
+    GameState state)
+    {
+        // Did the result match this event's trigger?
+        if (!effect.triggerResults.Contains(outcome.result))
+            return;
 
+        // Did the random chance succeed?
+        if (Random.value > effect.chance)
+            return;
+
+        switch (effect.action)
+        {
+            case AtBatEventAction.AddShadowClone:
+
+                for (int i = 0; i < effect.amount; i++)
+                {
+                    state.AddShadowClone(batter);
+                }
+
+                Debug.Log(
+                    $"[Artifact] Shadow Cleats triggered! " +
+                    $"{batter.playerName} gained " +
+                    $"{effect.amount} Shadow Clone(s). " +
+                    $"Total: {state.GetShadowClones(batter)}");
+
+                break;
+        }
+    }
     private IEnumerator SimInning()
     {
         GameUI.Instance?.ShowSim();
@@ -221,13 +252,17 @@ public class InningManager : MonoBehaviour
 
             foreach (var effect in eventEffects)
             {
-                effect.OnAtBatResolved(outcome, batter, state);
+                ResolveAtBatEvent(
+                    effect,
+                    outcome,
+                    batter,
+                    state);
             }
 
             state.ConsumeAtBatUpgrades();
 
             int runsScored = state.RunsThisInning - runsBefore;
-            LogAtBat(atBatNum, batter, outcome, runsScored);
+            LogAtBat(atBatNum, batter, outcome, runsScored,effectiveOnBase);
 
             // Update UI after each at-bat
             GameUI.Instance?.UpdateGameState(state, batter);
@@ -265,7 +300,12 @@ public class InningManager : MonoBehaviour
     // Logging
     // -------------------------------------------------------------------------
 
-    private void LogAtBat(int num, ShowdownCardData batter, AtBatOutcome o, int runsScored)
+    private void LogAtBat(
+    int num,
+    ShowdownCardData batter,
+    AtBatOutcome o,
+    int runsScored,
+    int effectiveOnBase)
     {
         string advLabel = o.pitcherHadAdvantage ? "PITCHER" : "BATTER ";
         string runNote = runsScored > 0 ? $"  <- {runsScored} RUN(S)!" : "";
@@ -276,7 +316,7 @@ public class InningManager : MonoBehaviour
 
         string consoleMsg = $"  AB {num,2}: {batter.playerName,-18} | " +
                   $"Pitch d20({o.pitchRoll,2})+{pitcherCard.control}={o.pitchTotal,2} " +
-                  $"vs OB {batter.onBase,2} -> {advLabel} | " +
+                  $"vs OB {effectiveOnBase,2} -> {advLabel} | " +
                   $"{swingPart} -> {o.result,-14}{runNote}";
 
         Debug.Log(consoleMsg);

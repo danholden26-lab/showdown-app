@@ -34,6 +34,7 @@ public class GameState
     private List<PendingUpgrade> inningUpgrades = new List<PendingUpgrade>();
     private List<PendingUpgrade> atBatUpgrades = new List<PendingUpgrade>();
 
+
     public IEnumerable<PendingUpgrade> ActiveUpgrades =>
         gameUpgrades.Concat(inningUpgrades).Concat(atBatUpgrades);
 
@@ -46,6 +47,10 @@ public class GameState
             shadowClones[batter] = 0;
 
         shadowClones[batter]++;
+
+        Debug.Log(
+            $"[Shadow] {batter.playerName} now has " +
+            $"{shadowClones[batter]} Shadow Clone(s).");
     }
 
     public int GetShadowClones(ShowdownCardData batter)
