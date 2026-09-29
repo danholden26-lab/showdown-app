@@ -15,8 +15,12 @@ MonoBehaviour:
   playerName: Greg Maddux
   cardType: 0
   cost: 2
+  points: 0
   control: 5
+  fieldingBonus: 0
   onBase: 0
+  speed: 10
+  portrait: {fileID: 0}
   chart:
   - rollMin: 1
     rollMax: 3
@@ -27,6 +31,9 @@ MonoBehaviour:
   - rollMin: 9
     rollMax: 16
     result: 1
+  - rollMin: 17
+    rollMax: 17
+    result: 2
   - rollMin: 18
     rollMax: 20
     result: 5

@@ -39,6 +39,6 @@ MonoBehaviour:
     result: 7
   - rollMin: 18
     rollMax: 20
-    result: 7
+    result: 9
   difficulty: 0
   runsToBeat: 0
