@@ -61,6 +61,52 @@ public class AtBatSimulator : MonoBehaviour
     }
 
     // -------------------------------------------------------------------------
+    // Stealing (MLB Showdown rules)
+    //
+    // Defender rolls d20 + catcher fielding (+ a flat bonus when the runner is
+    // going for 3rd). If that total is GREATER than the runner's speed, the
+    // runner is thrown out. Equal or lower and he is safe.
+    // -------------------------------------------------------------------------
+
+    public StealOutcome SimulateSteal(
+        int runnerSpeed,
+        int catcherFielding,
+        int targetBase,
+        int stealThirdBonus)
+    {
+        int defenseValue = DefenseValue(catcherFielding, targetBase, stealThirdBonus);
+        int roll = RollD20();
+        int total = roll + defenseValue;
+
+        return new StealOutcome
+        {
+            targetBase = targetBase,
+            runnerSpeed = runnerSpeed,
+            defenseRoll = roll,
+            defenseValue = defenseValue,
+            defenseTotal = total,
+            safe = total <= runnerSpeed
+        };
+    }
+
+    /// <summary>Probability (0-1) that the runner is safe. Used to show odds in the prompt.</summary>
+    public static float StealSafeChance(
+        int runnerSpeed,
+        int catcherFielding,
+        int targetBase,
+        int stealThirdBonus)
+    {
+        int defenseValue = DefenseValue(catcherFielding, targetBase, stealThirdBonus);
+
+        // Safe when d20 + defenseValue <= speed  ->  d20 <= speed - defenseValue
+        int safeRolls = Mathf.Clamp(runnerSpeed - defenseValue, 0, 20);
+        return safeRolls / 20f;
+    }
+
+    private static int DefenseValue(int catcherFielding, int targetBase, int stealThirdBonus)
+        => catcherFielding + (targetBase == 3 ? stealThirdBonus : 0);
+
+    // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
 
@@ -90,4 +136,14 @@ public struct AtBatOutcome
     public int rawSwingRoll;
     public int swingRoll;
     public AtBatResult result;
+}
+
+public struct StealOutcome
+{
+    public int targetBase;
+    public int runnerSpeed;
+    public int defenseRoll;
+    public int defenseValue;   // catcher fielding (+ 3rd-base bonus)
+    public int defenseTotal;   // roll + defenseValue
+    public bool safe;
 }

@@ -88,6 +88,86 @@ public class AtBatEventTrigger
 
 
 // -------------------------------------------------------------------------
+// Conditions
+//
+// An upgrade with a condition only applies while the condition is true.
+// Evaluated live by GameState.ActiveUpgrades, so both the simulation and the
+// roster tooltip see the same thing. To add a condition: add an enum value,
+// a case in IsMet, and a case in Describe.
+// -------------------------------------------------------------------------
+
+public enum UpgradeConditionType
+{
+    None,                    // 0
+    RunsThisInningAtLeast,   // 1
+    TwoOuts,                 // 2
+    RunnersInScoringPosition,// 3  (runner on 2nd or 3rd)
+    BasesEmpty               // 4
+}
+
+[System.Serializable]
+public class UpgradeCondition
+{
+    public UpgradeConditionType type = UpgradeConditionType.None;
+
+    [Min(1)]
+    [Tooltip("Only used by RunsThisInningAtLeast: runs your team must have scored this inning.")]
+    public int threshold = 2;
+
+    /// <summary>
+    /// Milestone conditions (runs this inning) log "X is active!" once when they turn on.
+    /// Situational ones (outs, bases) flip almost every at-bat, so logging them would be noise;
+    /// the batter panel and roster tooltip already show them live.
+    /// </summary>
+    public bool AnnouncesActivation => type == UpgradeConditionType.RunsThisInningAtLeast;
+
+    public bool IsMet(GameState state)
+    {
+        if (state == null) return type == UpgradeConditionType.None;
+
+        switch (type)
+        {
+            case UpgradeConditionType.RunsThisInningAtLeast:
+                return state.RunsThisInning >= threshold;
+
+            case UpgradeConditionType.TwoOuts:
+                return state.Outs >= 2;
+
+            case UpgradeConditionType.RunnersInScoringPosition:
+                return state.Second || state.Third;
+
+            case UpgradeConditionType.BasesEmpty:
+                return !state.First && !state.Second && !state.Third;
+
+            default:
+                return true;   // None = always on
+        }
+    }
+
+    public string Describe()
+    {
+        switch (type)
+        {
+            case UpgradeConditionType.RunsThisInningAtLeast:
+                return $"Once you've scored {threshold}+ run{(threshold == 1 ? "" : "s")} this inning:";
+
+            case UpgradeConditionType.TwoOuts:
+                return "With 2 outs:";
+
+            case UpgradeConditionType.RunnersInScoringPosition:
+                return "With a runner in scoring position:";
+
+            case UpgradeConditionType.BasesEmpty:
+                return "With the bases empty:";
+
+            default:
+                return "";
+        }
+    }
+}
+
+
+// -------------------------------------------------------------------------
 // Concrete chart effects
 // -------------------------------------------------------------------------
 
@@ -339,6 +419,25 @@ public class UpgradeCard : ScriptableObject
         new List<AtBatEventTrigger>();
 
 
+    [Header("Condition (optional)")]
+
+    [Tooltip("Effects only apply while this is true. Use Inning or Game scope: AtBat-scoped cards are consumed after one at-bat even if the condition never triggered.")]
+    public UpgradeCondition condition = new UpgradeCondition();
+
+    private void OnValidate()
+    {
+        if (condition != null &&
+            condition.type != UpgradeConditionType.None &&
+            scope == UpgradeScope.AtBat)
+        {
+            Debug.LogWarning(
+                $"[UpgradeCard] '{cardName}' has a condition but AtBat scope, so it is " +
+                "consumed after one at-bat even if the condition never triggers. " +
+                "Use Inning or Game scope.", this);
+        }
+    }
+
+
     // ---------------------------------------------------------------------
     // Effect description
     // ---------------------------------------------------------------------
@@ -451,6 +550,13 @@ public class UpgradeCard : ScriptableObject
             }
         }
 
+
+        if (lines.Count > 0 &&
+            condition != null &&
+            condition.type != UpgradeConditionType.None)
+        {
+            lines.Insert(0, condition.Describe());
+        }
 
         return lines.Count > 0
             ? string.Join("\n", lines)

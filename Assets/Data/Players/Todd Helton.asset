@@ -15,8 +15,11 @@ MonoBehaviour:
   playerName: Todd Helton
   cardType: 1
   cost: 2
+  points: 600
   control: 0
+  fieldingBonus: 0
   onBase: 11
+  speed: 15
   portrait: {fileID: -3854594433483865871, guid: f12e9a3c0615c1f4ead703972b9e4365, type: 3}
   chart:
   - rollMin: 1

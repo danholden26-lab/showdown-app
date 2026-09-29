@@ -15,8 +15,11 @@ MonoBehaviour:
   playerName: Manny Ramirez
   cardType: 1
   cost: 2
+  points: 510
   control: 0
+  fieldingBonus: 0
   onBase: 10
+  speed: 10
   portrait: {fileID: -4703231412843782958, guid: b2d17f11cff8ec246b3a1c99784679cf, type: 3}
   chart:
   - rollMin: 1

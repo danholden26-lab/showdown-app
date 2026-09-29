@@ -15,8 +15,12 @@ MonoBehaviour:
   playerName: Dustin Pedroia
   cardType: 1
   cost: 2
+  points: 480
   control: 0
+  fieldingBonus: 0
   onBase: 10
+  speed: 20
+  portrait: {fileID: 0}
   chart:
   - rollMin: 1
     rollMax: 3

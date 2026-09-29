@@ -15,8 +15,12 @@ MonoBehaviour:
   playerName: Ken Griffey Jr
   cardType: 1
   cost: 2
+  points: 660
   control: 0
+  fieldingBonus: 0
   onBase: 10
+  speed: 15
+  portrait: {fileID: 0}
   chart:
   - rollMin: 1
     rollMax: 2

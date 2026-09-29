@@ -24,13 +24,22 @@ public class ShowdownCardData : ScriptableObject
     [Tooltip("Draft/shop cost in gold")]
     public int cost = 2;
 
+    [Tooltip("Showdown card points. Sets the draft tier (Low / Mid / Epic) via the thresholds on GameConfig.")]
+    public int points;
+
     [Header("Pitcher Only")]
     [Tooltip("Added to the d20 pitch roll and compared against batter OnBase")]
     public int control;
 
+    [Tooltip("Boss team defense. Added to the standard catcher fielding value on steal attempts. 0 = standard catcher.")]
+    public int fieldingBonus;
+
     [Header("Batter Only")]
     [Tooltip("Compared against pitcher's (control + d20 roll). Batter wins if roll < OnBase")]
     public int onBase;
+
+    [Tooltip("Showdown-style speed (10 = slow, 15 = average, 20 = fast). Defender's roll + fielding must beat this to throw a runner out.")]
+    public int speed = 10;
 
     public Sprite portrait;
 

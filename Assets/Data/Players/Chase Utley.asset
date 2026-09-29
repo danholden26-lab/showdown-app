@@ -15,8 +15,12 @@ MonoBehaviour:
   playerName: Chase Utley
   cardType: 1
   cost: 2
+  points: 490
   control: 0
+  fieldingBonus: 0
   onBase: 10
+  speed: 15
+  portrait: {fileID: 0}
   chart:
   - rollMin: 1
     rollMax: 2
@@ -42,3 +46,5 @@ MonoBehaviour:
   - rollMin: 19
     rollMax: 20
     result: 9
+  difficulty: 0
+  runsToBeat: 0

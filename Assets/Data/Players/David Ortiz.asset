@@ -15,8 +15,11 @@ MonoBehaviour:
   playerName: David Ortiz
   cardType: 1
   cost: 2
+  points: 530
   control: 0
+  fieldingBonus: 0
   onBase: 10
+  speed: 10
   portrait: {fileID: 6564570371714818694, guid: 4a12d74856510be4f9c9a8de05ad4c3b, type: 3}
   chart:
   - rollMin: 1

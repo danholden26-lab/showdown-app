@@ -18,5 +18,13 @@ MonoBehaviour:
   playerSellBackRate: 0.5
   rosterSize: 9
   draftChoices: 3
+  epicMinPoints: 600
+  midMinPoints: 400
+  epicPicks: 2
+  midPicks: 4
+  lowPicks: 3
+  captainPickFirst: 1
   inningsPerBoss: 9
+  defaultCatcherFielding: 2
+  stealThirdDefenseBonus: 5
   classicInnings: 9

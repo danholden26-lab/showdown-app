@@ -20,6 +20,10 @@ public class InningManager : MonoBehaviour
     [Tooltip("How many cards appear in the shop each inning")]
     public int shopSlots = 3;
 
+    [Header("Stealing")]
+    [Tooltip("Off: ask only about the batter who just reached base. On: ask about every eligible runner before each at-bat.")]
+    public bool promptEveryAtBat = false;
+
     [Header("Settings")]
     public int totalInnings = 9;
     [Tooltip("Seconds to pause between each at-bat during the sim")]
@@ -229,6 +233,8 @@ public class InningManager : MonoBehaviour
             atBatNum++;
             ShowdownCardData batter = battingTeam.GetBatter(state.CurrentBatterIndex);
 
+            AnnounceLiveUpgrades();
+
             var activeUpgrades = new List<PendingUpgrade>(state.ActiveUpgrades);
             var modifiedChart = ChartModifier.BuildChart(batter.chart, batter, activeUpgrades);
             var rollModifiers = ChartModifier.GetRollModifiers(batter, activeUpgrades);
@@ -243,7 +249,7 @@ public class InningManager : MonoBehaviour
 
             int runsBefore = state.RunsThisInning;
 
-            state.ApplyResult(outcome.result);
+            state.ApplyResult(outcome.result, batter);
 
             // Fire reactive artifact effects AFTER the baseball result resolves.
             var eventEffects = ChartModifier.GetAtBatEventEffects(
@@ -269,6 +275,8 @@ public class InningManager : MonoBehaviour
 
             state.AdvanceBatterIndex();
 
+            yield return StartCoroutine(StealPhase(batter));
+
             yield return new WaitForSeconds(secondsPerAtBat);
         }
 
@@ -277,6 +285,117 @@ public class InningManager : MonoBehaviour
         // Show result panel before shop
         int goldEarned = 3 + state.RunsThisInning;
         GameUI.Instance?.ShowResult(state.RunsThisInning, state.TotalRuns + state.RunsThisInning, goldEarned);
+    }
+
+    // -------------------------------------------------------------------------
+    // Conditional upgrades
+    // -------------------------------------------------------------------------
+
+    // Conditional upgrades that have already announced themselves (so we log once, not every at-bat).
+    private readonly HashSet<PendingUpgrade> liveUpgrades = new HashSet<PendingUpgrade>();
+
+    /// <summary>
+    /// Logs when a conditional upgrade switches on. Called at the start of each at-bat;
+    /// the upgrade itself is applied through GameState.ActiveUpgrades.
+    /// </summary>
+    private void AnnounceLiveUpgrades()
+    {
+        foreach (var u in state.AllUpgrades)
+        {
+            if (u == null || u.card == null || u.card.condition == null) continue;
+            if (!u.card.condition.AnnouncesActivation) continue;   // situational conditions aren't logged
+
+            bool met = u.card.condition.IsMet(state);
+
+            if (met && liveUpgrades.Add(u))
+            {
+                Debug.Log($"  [Upgrade] '{u.card.cardName}' is now active ({u.card.condition.Describe()})");
+                GameUI.Instance?.AddLogEntry($"{u.card.cardName} is active!");
+            }
+            else if (!met)
+            {
+                liveUpgrades.Remove(u);   // re-arms for next time (e.g. next inning)
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Steal phase
+    // -------------------------------------------------------------------------
+
+    // Used only if GameManager has no GameConfig assigned.
+    private const int FallbackCatcherFielding = 2;
+    private const int FallbackStealThirdBonus = 5;
+
+    private int CatcherFielding()
+    {
+        var cfg = GameManager.Instance != null ? GameManager.Instance.config : null;
+        int standard = cfg != null ? cfg.defaultCatcherFielding : FallbackCatcherFielding;
+        return standard + pitcherCard.fieldingBonus;   // bosses with strong defense raise this
+    }
+
+    private int StealThirdBonus()
+    {
+        var cfg = GameManager.Instance != null ? GameManager.Instance.config : null;
+        return cfg != null ? cfg.stealThirdDefenseBonus : FallbackStealThirdBonus;
+    }
+
+    /// <summary>
+    /// Runs between at-bats. Asks the player whether to send each eligible runner,
+    /// rolls the steal, and applies the result. Lead runner is handled first so a
+    /// successful 2nd->3rd steal can open the bag for a 1st->2nd attempt.
+    /// </summary>
+    private IEnumerator StealPhase(ShowdownCardData justBatted)
+    {
+        if (GameUI.Instance == null) yield break;
+
+        for (int fromBase = 2; fromBase >= 1; fromBase--)
+        {
+            if (state.HalfInningOver) yield break;
+            if (!state.CanSteal(fromBase)) continue;
+
+            ShowdownCardData runner = state.GetRunner(fromBase);
+
+            // Default: only ask about the batter who just reached base.
+            if (!promptEveryAtBat && runner != justBatted) continue;
+
+            int targetBase = fromBase + 1;
+            int catcher = CatcherFielding();
+            int thirdBonus = StealThirdBonus();
+            float safeChance = AtBatSimulator.StealSafeChance(
+                runner.speed, catcher, targetBase, thirdBonus);
+
+            bool? decision = null;
+            GameUI.Instance.ShowStealPrompt(runner, targetBase, safeChance, go => decision = go);
+            yield return new WaitUntil(() => decision.HasValue);
+
+            if (decision != true) continue;
+
+            StealOutcome o = simulator.SimulateSteal(runner.speed, catcher, targetBase, thirdBonus);
+            string baseName = targetBase == 2 ? "2nd" : "3rd";
+            string logMsg;
+
+            if (o.safe)
+            {
+                state.ApplyStealSuccess(fromBase);
+                logMsg = $"{runner.playerName} steals {baseName}!";
+            }
+            else
+            {
+                state.ApplyCaughtStealing(fromBase);
+                logMsg = $"{runner.playerName} caught stealing {baseName}!";
+            }
+
+            Debug.Log($"  STEAL {baseName}: {runner.playerName} (SPD {o.runnerSpeed}) | " +
+                      $"Defense d20({o.defenseRoll})+{o.defenseValue}={o.defenseTotal} " +
+                      $"{(o.safe ? "<=" : ">")} {o.runnerSpeed} -> {(o.safe ? "SAFE" : "OUT")}");
+            Debug.Log($"         {state}");
+
+            GameUI.Instance.AddLogEntry(logMsg);
+            GameUI.Instance.UpdateGameState(state, justBatted);
+
+            yield return new WaitForSeconds(secondsPerAtBat * 0.5f);
+        }
     }
 
     // -------------------------------------------------------------------------

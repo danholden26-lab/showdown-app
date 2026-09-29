@@ -207,7 +207,7 @@ public class GameUI : MonoBehaviour
         if (batter == null) return;
 
         if (batterNameText) batterNameText.text = batter.playerName;
-        if (batterOnBaseText) batterOnBaseText.text = $"OB: {batter.onBase}";
+        if (batterOnBaseText) batterOnBaseText.text = $"OB: {batter.onBase}  SPD: {batter.speed}";
 
         if (batterUpgradesText)
         {
@@ -220,6 +220,35 @@ public class GameUI : MonoBehaviour
                 ? "Upgrades: " + string.Join(", ", activeOnThisBatter)
                 : "";
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Steal prompt
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Asks the player whether to send the runner. onDecision is ALWAYS invoked
+    /// (false if no dialog exists) so the sim coroutine can never hang.
+    /// </summary>
+    public void ShowStealPrompt(
+        ShowdownCardData runner,
+        int targetBase,
+        float safeChance,
+        System.Action<bool> onDecision)
+    {
+        if (ConfirmDialog.Instance == null)
+        {
+            Debug.LogWarning("[GameUI] No ConfirmDialog available - skipping steal prompt (runner holds).");
+            onDecision?.Invoke(false);
+            return;
+        }
+
+        string baseName = targetBase == 2 ? "2nd" : "3rd";
+
+        ConfirmDialog.Instance.Show(
+            $"{runner.playerName} (Speed {runner.speed}) can steal {baseName}.\nSafe: {safeChance:P0}. Send him?",
+            () => onDecision?.Invoke(true),
+            () => onDecision?.Invoke(false));
     }
 
     // -------------------------------------------------------------------------

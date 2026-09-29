@@ -16,7 +16,10 @@ MonoBehaviour:
   cardType: 0
   cost: 2
   control: 3
+  fieldingBonus: 3
   onBase: 0
+  speed: 10
+  portrait: {fileID: 0}
   chart:
   - rollMin: 1
     rollMax: 4

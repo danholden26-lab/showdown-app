@@ -15,8 +15,11 @@ MonoBehaviour:
   playerName: Ichiro Suzuki
   cardType: 1
   cost: 2
+  points: 390
   control: 0
+  fieldingBonus: 0
   onBase: 10
+  speed: 20
   portrait: {fileID: 5292044227242335922, guid: 2aa8fe1f2344adc4eb03eea80a66dc71, type: 3}
   chart:
   - rollMin: 1

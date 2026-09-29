@@ -15,8 +15,11 @@ MonoBehaviour:
   playerName: Barry Bonds
   cardType: 1
   cost: 2
+  points: 920
   control: 0
+  fieldingBonus: 0
   onBase: 13
+  speed: 15
   portrait: {fileID: 8942740910277035413, guid: 48309a194d7b45045a226d5fb21e4bec, type: 3}
   chart:
   - rollMin: 1

@@ -1262,7 +1262,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 494302464}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5a4ef723e5c2bef488d83dcfc993773a, type: 3}
   m_Name: 
@@ -1286,7 +1286,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 370929507eeec5a47aab4e0c5fd50753, type: 2}
   - {fileID: 11400000, guid: 370929507eeec5a47aab4e0c5fd50753, type: 2}
   - {fileID: 11400000, guid: d39d9cbb428927144b784d99fc4825e4, type: 2}
+  - {fileID: 11400000, guid: 2fc134127c9002e48afd9f4589155300, type: 2}
+  - {fileID: 11400000, guid: e41bd5d1b41950c46993d105a0d96e8b, type: 2}
+  - {fileID: 11400000, guid: 85857fa5de2a3934ab5b7f86ec45d4ea, type: 2}
+  - {fileID: 11400000, guid: 474c803715a872643b2d6a846aa14d4c, type: 2}
   shopSlots: 3
+  promptEveryAtBat: 0
   totalInnings: 9
   secondsPerAtBat: 1
 --- !u!114 &494302469

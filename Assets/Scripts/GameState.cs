@@ -15,10 +15,14 @@ public class GameState
     // --- Count ---
     public int Outs { get; private set; } = 0;
 
-    // --- Bases ---
-    public bool First { get; private set; } = false;
-    public bool Second { get; private set; } = false;
-    public bool Third { get; private set; } = false;
+    // --- Bases (runners are tracked by card so steals can read their speed) ---
+    public ShowdownCardData FirstRunner { get; private set; }
+    public ShowdownCardData SecondRunner { get; private set; }
+    public ShowdownCardData ThirdRunner { get; private set; }
+
+    public bool First => FirstRunner != null;
+    public bool Second => SecondRunner != null;
+    public bool Third => ThirdRunner != null;
 
     // --- Score ---
     public int RunsThisInning { get; private set; } = 0;
@@ -35,8 +39,14 @@ public class GameState
     private List<PendingUpgrade> atBatUpgrades = new List<PendingUpgrade>();
 
 
-    public IEnumerable<PendingUpgrade> ActiveUpgrades =>
+    /// <summary>Every upgrade owned this game, whether or not its condition is currently met.</summary>
+    public IEnumerable<PendingUpgrade> AllUpgrades =>
         gameUpgrades.Concat(inningUpgrades).Concat(atBatUpgrades);
+
+    /// <summary>Upgrades in effect right now. Conditional ones only count while their condition is true.</summary>
+    public IEnumerable<PendingUpgrade> ActiveUpgrades =>
+        AllUpgrades.Where(u => u == null || u.card == null ||
+                               u.card.condition == null || u.card.condition.IsMet(this));
 
     private Dictionary<ShowdownCardData, int> shadowClones =
     new Dictionary<ShowdownCardData, int>();
@@ -95,7 +105,7 @@ public class GameState
         RunsThisInning = 0;
         CurrentInning++;
         Outs = 0;
-        First = Second = Third = false;
+        ClearBases();
 
         ConsumeInningUpgrades();
     }
@@ -125,7 +135,7 @@ public class GameState
     // At-bat result application
     // -------------------------------------------------------------------------
 
-    public void ApplyResult(AtBatResult result)
+    public void ApplyResult(AtBatResult result, ShowdownCardData batter)
     {
         switch (result)
         {
@@ -137,72 +147,125 @@ public class GameState
                 break;
 
             case AtBatResult.BB:
-                WalkBatter();
+                WalkBatter(batter);
                 break;
 
             case AtBatResult.Single:
             case AtBatResult.SinglePlus:
                 AdvanceAllRunners(1);
-                First = true;
+                FirstRunner = batter;
                 break;
 
             case AtBatResult.Double:
                 AdvanceAllRunners(2);
-                Second = true;
+                SecondRunner = batter;
                 break;
 
             case AtBatResult.Triple:
                 AdvanceAllRunners(3);
-                Third = true;
+                ThirdRunner = batter;
                 break;
 
             case AtBatResult.HR:
-                if (Third) { RunsThisInning++; Third = false; }
-                if (Second) { RunsThisInning++; Second = false; }
-                if (First) { RunsThisInning++; First = false; }
+                if (ThirdRunner != null) RunsThisInning++;
+                if (SecondRunner != null) RunsThisInning++;
+                if (FirstRunner != null) RunsThisInning++;
                 RunsThisInning++;
+                ClearBases();
                 break;
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Stealing
+    // -------------------------------------------------------------------------
+
+    /// <summary>Runner on the given base (1-3), or null.</summary>
+    public ShowdownCardData GetRunner(int baseNumber)
+    {
+        switch (baseNumber)
+        {
+            case 1: return FirstRunner;
+            case 2: return SecondRunner;
+            case 3: return ThirdRunner;
+            default: return null;
+        }
+    }
+
+    /// <summary>A steal is possible from 1st or 2nd when the next base is open. No stealing home.</summary>
+    public bool CanSteal(int fromBase)
+    {
+        switch (fromBase)
+        {
+            case 1: return FirstRunner != null && SecondRunner == null;
+            case 2: return SecondRunner != null && ThirdRunner == null;
+            default: return false;
+        }
+    }
+
+    public void ApplyStealSuccess(int fromBase)
+    {
+        if (!CanSteal(fromBase)) return;
+
+        if (fromBase == 1) { SecondRunner = FirstRunner; FirstRunner = null; }
+        else               { ThirdRunner = SecondRunner; SecondRunner = null; }
+    }
+
+    public void ApplyCaughtStealing(int fromBase)
+    {
+        if (fromBase == 1) FirstRunner = null;
+        else if (fromBase == 2) SecondRunner = null;
+
+        RecordOut();
     }
 
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
 
+    private void ClearBases()
+    {
+        FirstRunner = SecondRunner = ThirdRunner = null;
+    }
+
     private void RecordOut()
     {
         Outs++;
-        if (HalfInningOver) First = Second = Third = false;
+        if (HalfInningOver) ClearBases();
     }
 
     private void AdvanceAllRunners(int bases)
     {
-        int thirdPos = Third ? 3 + bases : 0;
-        int secondPos = Second ? 2 + bases : 0;
-        int firstPos = First ? 1 + bases : 0;
+        var third = ThirdRunner;
+        var second = SecondRunner;
+        var first = FirstRunner;
 
-        First = Second = Third = false;
+        ClearBases();
 
-        PlaceRunner(thirdPos);
-        PlaceRunner(secondPos);
-        PlaceRunner(firstPos);
+        PlaceRunner(third, 3 + bases);
+        PlaceRunner(second, 2 + bases);
+        PlaceRunner(first, 1 + bases);
     }
 
-    private void PlaceRunner(int pos)
+    private void PlaceRunner(ShowdownCardData runner, int pos)
     {
-        if (pos == 0) return;
+        if (runner == null) return;
         if (pos >= 4) { RunsThisInning++; return; }
-        if (pos == 3) Third = true;
-        if (pos == 2) Second = true;
-        if (pos == 1) First = true;
+        if (pos == 3) ThirdRunner = runner;
+        if (pos == 2) SecondRunner = runner;
+        if (pos == 1) FirstRunner = runner;
     }
 
-    private void WalkBatter()
+    private void WalkBatter(ShowdownCardData batter)
     {
-        if (First && Second && Third) RunsThisInning++;
-        else if (First && Second) Third = true;
-        else if (First) Second = true;
-        First = true;
+        bool first = FirstRunner != null;
+        bool second = SecondRunner != null;
+        bool third = ThirdRunner != null;
+
+        if (first && second && third) RunsThisInning++;   // bases loaded: runner from 3rd scores
+        if (first && second) ThirdRunner = SecondRunner;
+        if (first) SecondRunner = FirstRunner;
+        FirstRunner = batter;
     }
 
     // -------------------------------------------------------------------------

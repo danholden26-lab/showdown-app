@@ -15,8 +15,11 @@ MonoBehaviour:
   playerName: Derek Jeter
   cardType: 1
   cost: 2
+  points: 400
   control: 0
+  fieldingBonus: 0
   onBase: 10
+  speed: 20
   portrait: {fileID: 5471654003826318446, guid: c40360b068fc76d45af3c29b63baa327, type: 3}
   chart:
   - rollMin: 1

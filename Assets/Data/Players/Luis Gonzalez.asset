@@ -15,8 +15,12 @@ MonoBehaviour:
   playerName: Luis Gonzalez
   cardType: 1
   cost: 2
+  points: 620
   control: 0
+  fieldingBonus: 0
   onBase: 11
+  speed: 15
+  portrait: {fileID: 0}
   chart:
   - rollMin: 1
     rollMax: 4
